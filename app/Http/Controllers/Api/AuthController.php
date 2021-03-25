@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 
+use App\Models\User;
 use App\Services\AuthService;
 
 class AuthController extends Controller
@@ -36,5 +37,35 @@ class AuthController extends Controller
 
     }
 
+
+    /**
+     * 完善用户信息
+     * @return mixed
+     * @throws \App\Exceptions\RequestException
+     */
+    public function editUserInfo()
+    {
+        $rules = [
+            'avatarUrl' => 'nullable',
+            'city'      => 'nullable',
+            'gender'    => 'nullable',
+            'nickName'  => 'nullable',
+            'province'  => 'nullable'
+        ];
+
+        $this->validateInput($rules);
+
+        $validate = $this->validated;
+
+        return $this->successOrFailed([
+            User::whereKey(USER_ID)->update([
+                'nick_name' => $validate['nickName'],
+                'avatar' => $validate['avatarUrl'],
+                'city' => $validate['province'] .'-'.$validate['city'],
+                'sex' => $validate['gender']
+            ])
+        ]);
+
+    }
 
 }
