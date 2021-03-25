@@ -11,8 +11,9 @@ class AuthService extends BaseServices
 {
 
     /**
-     * @param $members
-     * @return array
+     * @param $validate
+     * @return array|\EasyWeChat\Kernel\Support\Collection|object|\Psr\Http\Message\ResponseInterface|string
+     * @throws \EasyWeChat\Kernel\Exceptions\InvalidConfigException
      */
     public static function login($validate)
     {
@@ -20,8 +21,10 @@ class AuthService extends BaseServices
         $app = Factory::miniProgram(config('wechat.mini_program.default'));
 
         $data = $app->auth->session($validate['code']);
-        $openid = $data['openid'];
-        User::create(['openid'=>$openid]);
+
+        if(!User::where('openid', $data['openid'])->exists()){
+            User::create(['openid' => $data['openid']]);
+        }
 
         return $data;
 
